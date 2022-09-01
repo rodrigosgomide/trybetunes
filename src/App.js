@@ -3,7 +3,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  // Link,
 } from 'react-router-dom';
 import Album from './pages/Album';
 import Favorites from './pages/Favorites';
