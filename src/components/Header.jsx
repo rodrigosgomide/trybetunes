@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { getUser } from '../services/userAPI';
 import Loading from './Loading';
+import NavBar from './NavBar';
 
 class Header extends Component {
   state = {
@@ -21,13 +22,13 @@ class Header extends Component {
     const { userName, loading } = this.state;
     return (
       <header data-testid="header-component">
-        {loading
-          ? <Loading />
-          : <div data-testid="header-user-name">
-            {`Bem vindo
-            ${userName}
-            `}
-          </div>}
+        {
+          loading ? <Loading />
+            : <div data-testid="header-user-name">
+              {`Bem vindo ${userName} !`}
+              <NavBar />
+            </div>
+        }
       </header>
     );
   }
