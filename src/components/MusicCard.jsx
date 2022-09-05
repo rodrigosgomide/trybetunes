@@ -5,7 +5,7 @@ class MusicCard extends Component {
   render() {
     const { trackName, previewUrl } = this.props;
     return (
-      <div>
+      <li>
         {trackName}
         <audio data-testid="audio-component" src={ previewUrl } controls>
           <track kind="captions" />
@@ -15,14 +15,19 @@ class MusicCard extends Component {
           <code>audio</code>
           .
         </audio>
-      </div>
+      </li>
     );
   }
 }
 
+MusicCard.defaultProps = {
+  trackName: '',
+  previewUrl: '',
+};
+
 MusicCard.propTypes = {
-  trackName: PropTypes.string.isRequired,
-  previewUrl: PropTypes.string.isRequired,
+  trackName: PropTypes.string,
+  previewUrl: PropTypes.string,
 };
 
 export default MusicCard;
