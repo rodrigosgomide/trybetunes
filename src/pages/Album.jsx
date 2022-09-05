@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { PropTypes, match as matchPropTypes } from 'prop-types';
 import Header from '../components/Header';
 import getMusics from '../services/musicsAPI';
 import MusicCard from '../components/MusicCard';
@@ -11,7 +12,9 @@ class Album extends Component {
   };
 
   componentDidMount() {
-    const { id } = this.props.match.params;
+    const { match } = this.props;
+    const { params } = match;
+    const { id } = params;
     getMusics(id)
       .then((result) => {
         this.setState({ artistName: result[0].artistName });
@@ -62,5 +65,9 @@ class Album extends Component {
     );
   }
 }
+
+Album.propTypes = {
+  match: PropTypes.shape(matchPropTypes).isRequired,
+};
 
 export default Album;

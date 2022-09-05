@@ -18,17 +18,22 @@ class Header extends Component {
       });
   }
 
+  loadingCheck = () => {
+    const { loading, userName } = this.state;
+    if (loading === true) {
+      return <Loading />;
+    }
+    return (
+      <div data-testid="header-user-name">
+        {`Bem vindo ${userName} !`}
+        <NavBar />
+      </div>);
+  };
+
   render() {
-    const { userName, loading } = this.state;
     return (
       <header data-testid="header-component">
-        {
-          loading ? <Loading />
-            : <div data-testid="header-user-name">
-              {`Bem vindo ${userName} !`}
-              <NavBar />
-            </div>
-        }
+        {this.loadingCheck()}
       </header>
     );
   }
