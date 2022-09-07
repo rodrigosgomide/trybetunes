@@ -3,7 +3,7 @@ import { PropTypes, match as matchPropTypes } from 'prop-types';
 import Header from '../components/Header';
 import getMusics from '../services/musicsAPI';
 import MusicCard from '../components/MusicCard';
-import { addSong } from '../services/favoriteSongsAPI';
+import { addSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
 import Loading from '../components/Loading';
 
 class Album extends Component {
@@ -14,6 +14,7 @@ class Album extends Component {
     favorites: [],
     loading: false,
     songToAdd: {},
+    // userFavoritesSongs: [],
   };
 
   componentDidMount() {
@@ -28,7 +29,27 @@ class Album extends Component {
           artistName: result[0].artistName,
           collectionName: result[0].collectionName,
           musics: songs,
-          favorites: songs.map(() => false),
+          favorites: songs.map(({ trackId }) => ({
+            [trackId]: false,
+          })),
+        });
+      });
+
+    this.setState({ loading: true });
+    getFavoriteSongs()
+      .then((result) => {
+        const { favorites } = this.state;
+        const favTrackId = result.map(({ trackId }) => trackId);
+        const x = favorites.map((fav) => {
+          if (favTrackId.includes(Number(Object.keys(fav)))) {
+            return ({ [Object.keys(fav)]: !fav[Object.keys(fav)] });
+          }
+          return (fav);
+        });
+        this.setState({
+          loading: false,
+          // userFavoritesSongs: result,
+          favorites: x,
         });
       });
   }
@@ -43,19 +64,19 @@ class Album extends Component {
   }
 
   handlerCheckBox = (event) => {
-    const { id } = event.target;
+    const { id, name } = event.target;
     const { favorites, musics } = this.state;
 
-    const favoriteSongs = favorites.map((status, index) => {
-      if (index === Number(id)) {
-        return (!status);
+    const favoriteSongs = favorites.map((song) => {
+      if (song[id] !== undefined) {
+        return ({ [id]: !song[id] });
       }
-      return status;
+      return song;
     });
 
     this.setState({
       loading: true,
-      songToAdd: musics[id],
+      songToAdd: musics[name],
       favorites: favoriteSongs,
     });
   };
@@ -78,16 +99,17 @@ class Album extends Component {
       return (
         <ul>
           {musics.map((music, index) => {
+            const { trackId } = music;
             if (music.kind === 'song') {
               return (<MusicCard
                 key={ index }
                 trackName={ music.trackName }
                 previewUrl={ music.previewUrl }
                 handlerCheckBox={ this.handlerCheckBox }
-                checked={ favorites[index] }
-                // addSong={ this.findMusic }
+                checked={ favorites[index][trackId] }
                 trackId={ music.trackId }
-                id={ index }
+                id={ music.trackId }
+                index={ index }
               />);
             }
             return null;

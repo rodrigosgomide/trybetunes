@@ -10,6 +10,7 @@ class MusicCard extends Component {
       checked,
       id,
       handlerCheckBox,
+      index,
     } = this.props;
 
     return (
@@ -32,6 +33,7 @@ class MusicCard extends Component {
             id={ id }
             onClick={ handlerCheckBox }
             defaultChecked={ checked }
+            name={ index }
           />
           Favorita
         </label>
@@ -47,6 +49,7 @@ MusicCard.defaultProps = {
   checked: false,
   id: 0,
   handlerCheckBox: () => {},
+  index: 0,
 };
 
 MusicCard.propTypes = {
@@ -56,6 +59,7 @@ MusicCard.propTypes = {
   checked: PropTypes.bool,
   id: PropTypes.number,
   handlerCheckBox: PropTypes.func,
+  index: PropTypes.number,
 };
 
 export default MusicCard;
