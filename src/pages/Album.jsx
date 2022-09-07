@@ -13,30 +13,52 @@ class Album extends Component {
     musics: [],
     favorites: [],
     loading: false,
+    songToAdd: {},
   };
 
   componentDidMount() {
     const { match } = this.props;
     const { params } = match;
     const { id } = params;
+
     getMusics(id)
       .then((result) => {
-        this.setState({ artistName: result[0].artistName });
-        this.setState({ collectionName: result[0].collectionName });
-        this.setState({ musics: result.filter((music) => {
-          if (music.kind === 'song') {
-            return music;
-          }
-        }) });
+        const songs = result.filter((music) => music.kind === 'song');
+        this.setState({
+          artistName: result[0].artistName,
+          collectionName: result[0].collectionName,
+          musics: songs,
+          favorites: songs.map(() => false),
+        });
       });
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { musics } = this.state;
-    if (musics !== prevState.musics) {
-      this.setState({ favorites: musics.map(({ trackId }) => ({ [trackId]: false })) });
+  componentDidUpdate() {
+    const { songToAdd, loading } = this.state;
+    if (loading) {
+      addSong(songToAdd).then(() => {
+        this.setState({ loading: false });
+      });
     }
   }
+
+  handlerCheckBox = (event) => {
+    const { id } = event.target;
+    const { favorites, musics } = this.state;
+
+    const favoriteSongs = favorites.map((status, index) => {
+      if (index === Number(id)) {
+        return (!status);
+      }
+      return status;
+    });
+
+    this.setState({
+      loading: true,
+      songToAdd: musics[id],
+      favorites: favoriteSongs,
+    });
+  };
 
   artistData = () => {
     const { artistName, collectionName } = this.state;
@@ -50,43 +72,22 @@ class Album extends Component {
     return null;
   };
 
-  findMusic = (id) => {
-    const { musics } = this.state;
-    musics.map((music) => {
-      if (music.trackId.toString() === id) {
-        return music;
-      }
-    });
-  };
-
-  handlerCheckBox = (event) => {
-    const { id } = event.target;
-    const { favorites } = this.state;
-    this.setState({ loading: true });
-    this.setState({ favorites: favorites.map((music) => {
-      if (music[id] !== undefined) {
-        return ({ [id]: !music[id] });
-      }
-      return music;
-    }) });
-    addSong(this.findMusic(id)).then(() => this.setState({ loading: false }));
-  };
-
   musicsList = () => {
     const { musics, favorites } = this.state;
     if (favorites.length > 0) {
       return (
         <ul>
-          {musics.map((music) => {
+          {musics.map((music, index) => {
             if (music.kind === 'song') {
               return (<MusicCard
-                key={ music.trackId }
+                key={ index }
                 trackName={ music.trackName }
                 previewUrl={ music.previewUrl }
-                addSong={ this.handlerCheckBox }
-                checked={ favorites.find((track) => track[music.trackId] !== undefined
-                  && track[music.trackId]) }
+                handlerCheckBox={ this.handlerCheckBox }
+                checked={ favorites[index] }
+                // addSong={ this.findMusic }
                 trackId={ music.trackId }
+                id={ index }
               />);
             }
             return null;
@@ -100,7 +101,6 @@ class Album extends Component {
 
   load = () => (
     <div>
-      <Header />
       {this.artistData()}
       {this.musicsList()}
     </div>
@@ -110,6 +110,7 @@ class Album extends Component {
     const { loading } = this.state;
     return (
       <div data-testid="page-album">
+        <Header />
         {loading ? this.loading() : this.load()}
       </div>
     );
